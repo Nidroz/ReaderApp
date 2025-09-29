@@ -116,3 +116,35 @@ export const getHistory = async () => {
     return [];
   }
 };
+
+export const clearHistory = async () => {
+  try {
+    await AsyncStorage.removeItem(StorageKeys.READING_HISTORY);
+    return [];
+  } catch (error) {
+    console.error('Error clearing history:', error);
+    return [];
+  }
+}
+
+export const clearFavorites = async () => {
+  try {
+    await AsyncStorage.removeItem(StorageKeys.FAVORITES);
+    return [];
+  } catch (error) {
+    console.error('Error clearing favorites:', error);
+    return [];
+  }
+};
+
+export const removeFromHistory = async (url) => {
+  try {
+    const existing = await getHistory();
+    const updated = existing.filter(entry => entry.url !== url);
+    await AsyncStorage.setItem(StorageKeys.READING_HISTORY, JSON.stringify(updated));
+    return updated;
+  } catch (error) {
+    console.error('Error removing from history:', error);
+    return [];
+  }
+};

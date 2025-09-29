@@ -120,6 +120,12 @@ const WebViewReader = ({ site, onBackToHome }) => {
     );
   };
 
+  // handle opening new windows/tabs - keep in app
+  const handleShouldStartLoadWithRequest = (request) => {
+    // allow all navigation within the webview
+    return true;
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar hidden={true} />
@@ -150,6 +156,7 @@ const WebViewReader = ({ site, onBackToHome }) => {
         onLoadEnd={() => setIsLoading(false)}
         onTouchStart={handleWebViewTouch}
         onError={handleError}
+        onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         startInLoadingState={true}
@@ -160,6 +167,13 @@ const WebViewReader = ({ site, onBackToHome }) => {
         cacheEnabled={true}
         allowFileAccess={true}
         allowUniversalAccessFromFileURLs={true}
+        setSupportMultipleWindows={false} // prevents opening new tabs
+        onOpenWindow={(syntheticEvent) => { // permits popups but opens them in the same webview
+          const { nativeEvent } = syntheticEvent;
+          if (nativeEvent.targetUrl && webViewRef.current) {
+            webViewRef.current.injectJavaScript(`window.location.href = '${nativeEvent.targetUrl}';`);
+          }
+        }}
       />
 
       {/* bottom navigation controls */}
@@ -225,6 +239,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.9)',
     paddingVertical: 12,
+    paddingBottom: 40,
     position: 'absolute',
     bottom: 0,
     left: 0,

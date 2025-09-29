@@ -35,8 +35,16 @@ const SiteSelector = ({ onSiteSelect, onShowFavorites }) => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <Text style={styles.title}>📱 ReaderApp</Text>
-        <Text style={styles.subtitle}>Choose your reading platform</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>📱 ReaderApp</Text>
+          <Text style={styles.subtitle}>Choose your reading platform</Text>
+        </View>
+        <TouchableOpacity 
+          style={styles.libraryButton}
+          onPress={onShowFavorites}
+        >
+          <Text style={styles.libraryButtonText}>📚</Text>
+        </TouchableOpacity>
       </View>
       
       {/* quick actions widget */}
@@ -67,6 +75,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
@@ -78,6 +89,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+  },
+  headerContent: {
+    flex: 1,
   },
   title: {
     fontSize: 32,
@@ -91,6 +105,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#7f8c8d',
     fontWeight: '500',
+  },
+  libraryButton: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#3498db',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  libraryButtonText: {
+    fontSize: 24,
   },
   allSitesSection: {
     paddingHorizontal: 20,

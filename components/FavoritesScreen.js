@@ -7,7 +7,14 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { getFavorites, removeFromFavorites, getHistory } from '../utils/storage';
+import { 
+  getFavorites, 
+  removeFromFavorites, 
+  getHistory, 
+  clearHistory,
+  clearFavorites,
+  removeFromHistory,
+} from '../utils/storage';
 import { formatTime } from '../utils/tools';
 
 const FavoritesScreen = ({ onClose, onSelectUrl }) => {
@@ -37,6 +44,50 @@ const FavoritesScreen = ({ onClose, onSelectUrl }) => {
           style: 'destructive',
           onPress: async () => {
             await removeFromFavorites(url);
+            loadData();
+          },
+        },
+      ]
+    )
+  };
+
+  const handleRemoveHistory = async (url) => { // direct removal without confirmation
+    // Alert.alert(
+    //   'Remove from History',
+    //   'Are you sure you want to remove this entry from history?',
+    //   [
+    //     { text: 'Cancel', style: 'cancel' },
+    //     {
+    //       text: 'Remove',
+    //       style: 'destructive',
+    //       onPress: async () => {
+    //         await handleRemoveHistory(url);
+    //         loadData();
+    //       },
+    //     },
+    //   ]
+    // );
+    console.log('Removing from history:', url);
+    await removeFromHistory(url);
+    loadData();
+  };
+
+  const handleClearAll = () => {
+    const isHistory = activeTab === 'history';
+    Alert.alert(
+      `Clear All ${isHistory ? 'History' : 'Favorites'}`,
+      `Are you sure you want to clear all ${isHistory ? 'history' : 'favorites'}? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear All',
+          style: 'destructive',
+          onPress: async () => {
+            if (isHistory) {
+              await clearHistory();
+            } else {
+              await clearFavorites();
+            }
             loadData();
           },
         },
@@ -86,6 +137,12 @@ const FavoritesScreen = ({ onClose, onSelectUrl }) => {
           <Text style={styles.itemSite}>{item.site.name}</Text>
           <Text style={styles.itemTime}>{formatTime(item.timestamp)}</Text>
         </View>
+        <TouchableOpacity
+          style={styles.removeButton}
+          onPress={async () => handleRemoveHistory(item.url)}
+        >
+          <Text style={styles.removeButtonText}>×</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -116,7 +173,12 @@ const FavoritesScreen = ({ onClose, onSelectUrl }) => {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Library</Text>
-        <View style={styles.backButton} />
+        {currentData.length > 0 && (
+          <TouchableOpacity onPress={handleClearAll} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>Clear</Text>
+          </TouchableOpacity>
+        )}
+        {currentData.length === 0 && <View style={styles.backButton} />}
       </View>
 
       {/* tabs */}
@@ -181,6 +243,17 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 28,
     color: '#2c3e50',
+  },
+  clearButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#e74c3c',
+    borderRadius: 6,
+  },
+  clearButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   headerTitle: {
     fontSize: 24,
