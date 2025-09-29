@@ -25,11 +25,11 @@ export const READING_SITES = [
   },
   {
     id: '4',
-    name: 'Tapas',
-    description: 'Comics and novels platform',
-    url: 'https://tapas.io',
-    color: '#9B59B6',
-    icon: '🌟'
+    name: 'Manga-Scantrad.io',
+    description: 'French manga scanlation site',
+    url: 'https://manga-scantrad.io/',
+    color: '#2C3E50',
+    icon: '🐱‍👤',
   },
   {
     id: '5',
@@ -39,20 +39,20 @@ export const READING_SITES = [
     color: '#3498DB',
     icon: '💎'
   },
-  {
-    id: '6',
-    name: 'Lezhin Comics',
-    description: 'Premium manhwa platform',
-    url: 'https://www.lezhin.com',
-    color: '#F39C12',
-    icon: '🔥'
-  },
-  {
-    id: '7',
-    name: 'Manga-Scantrad.io',
-    description: 'French manga scanlation site',
-    url: 'https://manga-scantrad.io/',
-    color: '#2C3E50',
-    icon: '🐱‍👤',
-  }
+  // {
+  //   id: '6',
+  //   name: 'Lezhin Comics',
+  //   description: 'Premium manhwa platform',
+  //   url: 'https://www.lezhin.com',
+  //   color: '#F39C12',
+  //   icon: '🔥'
+  // },
+  // {
+  //   id: '7',
+  //   name: 'Tapas',
+  //   description: 'Comics and novels platform',
+  //   url: 'https://tapas.io',
+  //   color: '#9B59B6',
+  //   icon: '🌟'
+  // },
 ];

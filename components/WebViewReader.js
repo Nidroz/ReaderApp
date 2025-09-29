@@ -9,15 +9,24 @@ import {
   Alert,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { saveLastVisited, saveToHistory, addToFavorites } from '../utils/storage';
 
-const WebViewSelector = ({ site, onBackToHome }) => {
+const WebViewReader = ({ site, onBackToHome }) => {
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showNavigation, setShowNavigation] = useState(true);
+  const [currentUrl, setCurrentUrl] = useState(site.continueFromUrl || site.url);
+  const [pageTitle, setPageTitle] = useState('');
   const webViewRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const hideTimeoutRef = useRef(null);
+
+  // save immediately when component mounts
+  useEffect(() => {
+    saveLastVisited(site, currentUrl);
+    saveToHistory(site, currentUrl, site.name);
+  }, []);
 
   // auto-hide navigation after 3 seconds
   const startHideTimer = () => {
@@ -51,8 +60,8 @@ const WebViewSelector = ({ site, onBackToHome }) => {
   useEffect(() => {
     startHideTimer();
     return () => {
-      if (hideNavigation.current) {
-        clearTimeout(hideNavigation.current);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
       }
     };
   }, []);
@@ -60,6 +69,12 @@ const WebViewSelector = ({ site, onBackToHome }) => {
   const handleNavigationStateChange = (navState) => {
     setCanGoBack(navState.canGoBack);
     setCanGoForward(navState.canGoForward);
+    setCurrentUrl(navState.url);
+    setPageTitle(navState.title || '');
+
+    // save progress automatically when navigating
+    saveLastVisited(site, navState.url);
+    saveToHistory(site, navState.url, navState.title || site.name);
   };
 
   const goBack = () => {
@@ -80,6 +95,11 @@ const WebViewSelector = ({ site, onBackToHome }) => {
     }
   };
 
+  const handleAddToFavorites = () => {
+    addToFavorites(site, currentUrl, pageTitle || site.name);
+    Alert.alert('✨', 'Added to favorites!', [{ text: 'OK' }]);
+  };
+
   const handleWebViewTouch = () => {
     if (!showNavigation) {
       showNavigationControls();
@@ -92,10 +112,10 @@ const WebViewSelector = ({ site, onBackToHome }) => {
     const { nativeEvent } = syntheticEvent;
     Alert.alert(
       'Connection Error',
-      'Could not load the website/page. Please check your internet connection and try again.',
+      'Could not load the website. Please check your internet connection.',
       [
-        { text: 'Retry', onPress: reload},
-        { text: 'Go Back To Home', onPress: onBackToHome },
+        { text: 'Retry', onPress: reload },
+        { text: 'Back to Home', onPress: onBackToHome }
       ]
     );
   };
@@ -103,7 +123,7 @@ const WebViewSelector = ({ site, onBackToHome }) => {
   return (
     <View style={styles.container}>
       <StatusBar hidden={true} />
-
+      
       {/* top navigation header */}
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
         <TouchableOpacity style={styles.navButton} onPress={onBackToHome}>
@@ -112,6 +132,9 @@ const WebViewSelector = ({ site, onBackToHome }) => {
         <Text style={styles.siteTitle} numberOfLines={1}>
           {site.name}
         </Text>
+        <TouchableOpacity style={styles.navButton} onPress={handleAddToFavorites}>
+          <Text style={styles.navButtonText}>⭐</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={reload}>
           <Text style={styles.navButtonText}>🔄</Text>
         </TouchableOpacity>
@@ -120,12 +143,12 @@ const WebViewSelector = ({ site, onBackToHome }) => {
       {/* main webview */}
       <WebView
         ref={webViewRef}
-        source={{ uri: site.url }}
+        source={{ uri: currentUrl }}
         style={styles.webview}
         onNavigationStateChange={handleNavigationStateChange}
         onLoadStart={() => setIsLoading(true)}
         onLoadEnd={() => setIsLoading(false)}
-        onTouchStart={handleWebViewTouch}   
+        onTouchStart={handleWebViewTouch}
         onError={handleError}
         javaScriptEnabled={true}
         domStorageEnabled={true}
@@ -134,21 +157,19 @@ const WebViewSelector = ({ site, onBackToHome }) => {
         scrollEnabled={true}
         bounces={false}
         allowsBackForwardNavigationGestures={true}
-        // improve performance
         cacheEnabled={true}
-        // allow file downloads
         allowFileAccess={true}
         allowUniversalAccessFromFileURLs={true}
       />
 
       {/* bottom navigation controls */}
-      <Animated.View style={[styles.bottomNav, {opacity: fadeAnim }]}>
-        <TouchableOpacity
-          style={[styles.navButton, !canGoBack && styles.disabled]}
+      <Animated.View style={[styles.bottomNav, { opacity: fadeAnim }]}>
+        <TouchableOpacity 
+          style={[styles.navButton, !canGoBack && styles.disabled]} 
           onPress={goBack}
           disabled={!canGoBack}
         >
-          <Text style={styles.navButtonText}>⬅️</Text>
+          <Text style={styles.navButtonText}>←</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navButton, !canGoForward && styles.disabled]} 
@@ -171,8 +192,8 @@ const WebViewSelector = ({ site, onBackToHome }) => {
         </View>
       )}
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -211,18 +232,18 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   navButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     backgroundColor: 'rgba(255,255,255,0.25)',
     borderRadius: 10,
-    marginHorizontal: 8,
+    marginHorizontal: 4,
   },
   disabled: {
     opacity: 0.3,
   },
   navButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   webview: {
@@ -261,4 +282,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WebViewSelector;
+export default WebViewReader;

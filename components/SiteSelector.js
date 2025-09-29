@@ -5,13 +5,13 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Dimensions,
+  ScrollView,
 } from 'react-native';
 import { READING_SITES } from '../data/sites';
+import QuickActions from './QuickActions';
 
-const { width } = Dimensions.get('window');
 
-const SiteSelector = ({ onSiteSelect }) => {
+const SiteSelector = ({ onSiteSelect, onShowFavorites }) => {
   const renderSiteCard = ({ item }) => (
     <TouchableOpacity
       style={[styles.siteCard, { borderLeftColor: item.color }]}
@@ -28,22 +28,36 @@ const SiteSelector = ({ onSiteSelect }) => {
     </TouchableOpacity>
   );
 
+  const handleShowFavorites = () => {
+    onShowFavorites();
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <Text style={styles.title}>📱 ReaderApp</Text>
         <Text style={styles.subtitle}>Choose your reading platform</Text>
       </View>
       
-      <FlatList
-        data={READING_SITES}
-        renderItem={renderSiteCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
+      {/* quick actions widget */}
+      <QuickActions 
+        onSiteSelect={onSiteSelect}
+        onShowFavorites={handleShowFavorites}
       />
-    </View>
+      
+      {/* all sites grid */}
+      <View style={styles.allSitesSection}>
+        <Text style={styles.sectionTitle}>🌐 All Platforms</Text>
+        <FlatList
+          data={READING_SITES}
+          renderItem={renderSiteCard}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          scrollEnabled={false}
+          contentContainerStyle={styles.listContainer}
+        />
+      </View>
+    </ScrollView>
   );
 };
 
@@ -78,9 +92,18 @@ const styles = StyleSheet.create({
     color: '#7f8c8d',
     fontWeight: '500',
   },
+  allSitesSection: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginBottom: 15,
+  },
   listContainer: {
-    padding: 20,
-    paddingTop: 30,
+    paddingBottom: 20,
   },
   siteCard: {
     flex: 1,
