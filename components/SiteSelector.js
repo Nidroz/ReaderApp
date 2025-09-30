@@ -9,12 +9,17 @@ import {
 } from 'react-native';
 import { READING_SITES } from '../data/sites';
 import QuickActions from './QuickActions';
-
+import { useTheme } from '../utils/themeContext';
 
 const SiteSelector = ({ onSiteSelect, onShowFavorites }) => {
+  const { theme, isDark, toggleTheme } = useTheme();
+
   const renderSiteCard = ({ item }) => (
     <TouchableOpacity
-      style={[styles.siteCard, { borderLeftColor: item.color }]}
+      style={[styles.siteCard, { 
+        backgroundColor: theme.card,
+        borderLeftColor: item.color 
+      }]}
       onPress={() => onSiteSelect(item)}
       activeOpacity={0.8}
     >
@@ -22,40 +27,53 @@ const SiteSelector = ({ onSiteSelect, onShowFavorites }) => {
         <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
           <Text style={styles.cardIcon}>{item.icon}</Text>
         </View>
-        <Text style={styles.siteName}>{item.name}</Text>
-        <Text style={styles.siteDescription}>{item.description}</Text>
+        <Text style={[styles.siteName, { color: theme.text }]}>{item.name}</Text>
+        <Text style={[styles.siteDescription, { color: theme.textSecondary }]}>
+          {item.description}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 
-  const handleShowFavorites = () => {
-    onShowFavorites();
-  };
-
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: theme.background }]} 
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={[styles.header, { backgroundColor: theme.card }]}>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>📱 ReaderApp</Text>
-          <Text style={styles.subtitle}>Choose your reading platform</Text>
+          <Text style={[styles.title, { color: theme.text }]}>📱 ReaderApp</Text>
+          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+            Choose your reading platform
+          </Text>
         </View>
+        
+        {/* theme button - left */}
         <TouchableOpacity 
-          style={styles.libraryButton}
+          style={[styles.themeButton, { backgroundColor: theme.primary }]}
+          onPress={toggleTheme}
+        >
+          <Text style={styles.iconButtonText}>{isDark ? '☀️' : '🌙'}</Text>
+        </TouchableOpacity>
+        
+        {/* library button - right */}
+        <TouchableOpacity 
+          style={[styles.libraryButton, { backgroundColor: theme.primary }]}
           onPress={onShowFavorites}
         >
-          <Text style={styles.libraryButtonText}>📚</Text>
+          <Text style={styles.iconButtonText}>📚</Text>
         </TouchableOpacity>
       </View>
       
-      {/* quick actions widget */}
       <QuickActions 
         onSiteSelect={onSiteSelect}
-        onShowFavorites={handleShowFavorites}
+        onShowFavorites={onShowFavorites}
       />
       
-      {/* all sites grid */}
       <View style={styles.allSitesSection}>
-        <Text style={styles.sectionTitle}>🌐 All Platforms</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          🌐 All Platforms
+        </Text>
         <FlatList
           data={READING_SITES}
           renderItem={renderSiteCard}
@@ -72,16 +90,11 @@ const SiteSelector = ({ onSiteSelect, onShowFavorites }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
-    backgroundColor: '#ffffff',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     shadowColor: '#000',
@@ -91,29 +104,26 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   headerContent: {
-    flex: 1,
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
     fontWeight: '800',
     textAlign: 'center',
-    color: '#2c3e50',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#7f8c8d',
     fontWeight: '500',
   },
-  libraryButton: {
+  themeButton: {
     position: 'absolute',
     top: 60,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#3498db',
+    left: 20,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
@@ -122,8 +132,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-  libraryButtonText: {
-    fontSize: 24,
+  libraryButton: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  iconButtonText: {
+    fontSize: 22,
   },
   allSitesSection: {
     paddingHorizontal: 20,
@@ -132,7 +157,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2c3e50',
     marginBottom: 15,
   },
   listContainer: {
@@ -140,7 +164,6 @@ const styles = StyleSheet.create({
   },
   siteCard: {
     flex: 1,
-    backgroundColor: '#ffffff',
     margin: 8,
     borderRadius: 16,
     borderLeftWidth: 4,
@@ -170,13 +193,11 @@ const styles = StyleSheet.create({
   siteName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#2c3e50',
     marginBottom: 8,
     textAlign: 'center',
   },
   siteDescription: {
     fontSize: 12,
-    color: '#7f8c8d',
     textAlign: 'center',
     lineHeight: 16,
   },

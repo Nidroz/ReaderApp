@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import SiteSelector from './components/SiteSelector';
 import WebViewReader from './components/WebViewReader';
 import FavoritesScreen from './components/FavoritesScreen';
+import { ThemeProvider } from './utils/themeContext';
 
-export default function App() {
+function AppContent() {
   const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'reader', 'favorites'
   const [currentSite, setCurrentSite] = useState(null);
 
@@ -57,10 +58,18 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    // backgroundColor: '#f8f9fa',
     // alignItems: 'center',
     // justifyContent: 'center',
   },
