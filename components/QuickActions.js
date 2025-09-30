@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   section: {
-    marginBottom: 25,
+    marginBottom: 15,
   },
   sectionHeader: {
     flexDirection: 'row',

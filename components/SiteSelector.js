@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
   },
   allSitesSection: {
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
   sectionTitle: {
     fontSize: 18,
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   listContainer: {
-    paddingBottom: 20,
+    paddingBottom: 50,
   },
   siteCard: {
     flex: 1,
